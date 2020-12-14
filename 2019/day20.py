@@ -2,7 +2,6 @@ import copy
 import itertools
 import time
 import bisect
-from curses import wrapper
 
 
 
