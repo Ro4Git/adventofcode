@@ -23,7 +23,7 @@ def part(limit):
         lastSpoken = spoken
         spoken = (round-1) - lastoccurence[spoken] if spoken in lastoccurence else 0
         lastoccurence[lastSpoken] = round - 1 
-    print(spoken,max(lastoccurence.values()))
+    print(spoken)
     return spoken
 
 
