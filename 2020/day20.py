@@ -140,7 +140,7 @@ for t in tiles.values():
 for t in tiles.values():
     t.updatePotentialNeighbours()
                 
-#part 1 is just about finding tiles which only have 2 neighbours
+#part 1 is just about finding tiles which only have 2 neighbours (corners)
 potentialCorners = [t.id for t in tiles.values() if t.potentialNeighbours == 2]
 potentialBorders = [t.id for t in tiles.values() if t.potentialNeighbours == 3]
 potentialInside = [t.id for t in tiles.values() if t.potentialNeighbours == 4]
@@ -169,7 +169,7 @@ for i in range(1,nbSideTiles):
     nextTile = tiles[nextTileIndex]
     nextTile.matchConstrain(leftTileIndex,0)
     image[0][i] = nextTileIndex
-    #expand first column
+    
     topTileIndex = image[i-1][0]
     nextTileIndex = tiles[topTileIndex].borderNeighbours[2]
     nextTile = tiles[nextTileIndex]
@@ -183,9 +183,8 @@ for i in range(1,nbSideTiles):
         topTileIndex  = image[i-1][j]
         nextTileIndex = tiles[leftTileIndex].borderNeighbours[1]
         if (nextTileIndex != tiles[topTileIndex].borderNeighbours[2]):
+            print("problem, left tile is not pointing to the right neighbour, using top tile")
             nextTileIndex = tiles[topTileIndex].borderNeighbours[2]
-            print("problem")
-
         nextTile = tiles[nextTileIndex]
         nextTile.matchConstrain(leftTileIndex,topTileIndex)
         image[i][j] = nextTileIndex
