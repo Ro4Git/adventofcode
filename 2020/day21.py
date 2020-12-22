@@ -21,7 +21,6 @@ for l in lines:
     for i in ingredients:
         dictI[i] = 1
 
-listI = [k for k in dictI.keys()]
 listA = [k for k in dictA.keys()]
 
 #interesct all lines containiing this allergen to only keep the common ingredients
