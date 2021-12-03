@@ -143,10 +143,10 @@ for seg1, dist1 in itertools.izip(segments1,distances1):
             if (totaldist>0): 
                 if (totaldist < min_dist ):
                     min_dist = totaldist
-                print totaldist
+                print(totaldist)
         prev_seg2 = seg2
     prev_seg1 = seg1
-print min_dist        
+print(min_dist)
 
 
 
