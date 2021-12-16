@@ -2,6 +2,7 @@
 #https://adventofcode.com/2021/day/11
 import re, time, copy, math
 from collections import defaultdict
+import pygame
 
 f = open('input_day11.txt', 'r')
 lines = f.readlines()
@@ -45,18 +46,42 @@ def doStep():
             if increasePixel(pos2):
                 flashThisStep.append(pos2)
     #any cell that flashed is reset to 0
-    nbFlash = 0
     for y in range(height):
         for x in range(width):
             if grid[y][x]>9:
                 grid[y][x] = 0
-                nbFlash += 1
-    return nbFlash
+                flashThisStep.append((x,y))
+    return flashThisStep
+
+
+def drawGrid(surface,grid, gridCellSize = 10):
+    for y,row in enumerate(grid):
+        for x,val in enumerate(row):
+            rect = (x*(gridCellSize+1),y*(gridCellSize+1),gridCellSize,gridCellSize)
+            surface.fill((val*25,val*25,val*25),rect)
+
+def drawPath(surface,path, gridCellSize = 10):
+    for p in path:
+        x = p[0]
+        y = p[1]
+        rect = (x*(gridCellSize+1),y*(gridCellSize+1),gridCellSize,gridCellSize)
+        surface.fill((255,0,0),rect)
+
+pygame.init()
+surface = pygame.display.set_mode((600,600))
+
+
 
 def part1():
     totalFlash = 0
     for i in range(100):
-        totalFlash += doStep()
+        flashes = doStep()
+        totalFlash += len(flashes)
+        drawGrid(surface,grid,30)
+        drawPath(surface,flashes,30)
+        pygame.display.update()
+        pygame.time.delay(25)
+
     print(totalFlash)
     return
 
@@ -64,9 +89,13 @@ def part2():
     step = 100
     sumGrid = sum([sum(row) for row in grid])
     while sumGrid != 0:
-        doStep()
+        flashes = doStep()
         step += 1
         sumGrid = sum([sum(row) for row in grid])
+        drawGrid(surface,grid,30)
+        drawPath(surface,flashes,30)
+        pygame.display.update()
+        pygame.time.delay(25)        
     print(step)
     return
 
@@ -81,3 +110,5 @@ startp2 = time.time()
 part2()
 endp2 = time.time()
 print("{:.4f}s".format(endp2 - startp2))
+
+pygame.quit()

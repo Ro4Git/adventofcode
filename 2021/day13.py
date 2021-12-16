@@ -1,6 +1,6 @@
 #Advent of code 2021: Day 13
 #https://adventofcode.com/2021/day/13
-import re, time, copy, math
+import re, time, copy, math, pygame
 from collections import defaultdict
 
 f = open('input_day13.txt', 'r')
@@ -46,26 +46,30 @@ def part1():
     print(len(newcells))
     return
 
-def printGrid(cells):
-    width = max([c[0] for c in cells])
-    height = max([c[1] for c in cells])
-    for y in range(height+1):
-        str = ""
-        for x in range(width+1):
-            if ((x,y) in cells):
-                str += '█'
-            else:
-                str += '..'
-        print(str)
 
-
+def drawPath(surface,path):
+    for p in path:
+        x = p[0]
+        y = p[1]
+        rect = (x*6,y*6,5,5)
+        surface.fill((255,255,255),rect)
 
 def part2():
     newcells = cells
     for f in folds:
         newcells = fold(f,newcells)
 
-    printGrid(newcells)
+    pygame.init()
+    surface = pygame.display.set_mode((300,300))
+
+    while True:
+        drawPath(surface,newcells)
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
     return
 
 print("----- Part1 ----")

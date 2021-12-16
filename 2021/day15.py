@@ -1,8 +1,8 @@
 #Advent of code 2021: Day 15
 #https://adventofcode.com/2021/day/15
-import re, time, copy, math
-from collections import defaultdict
+import re, time, copy, math, sys
 import astar
+import pygame
 
 f = open('input_day15.txt', 'r')
 lines = f.readlines()
@@ -55,7 +55,7 @@ def part1():
     totalCost = sum([grid[n2[1]][n2[0]] for n2 in path[1:]])
     print(totalCost)
 
-    return
+    return path
 
 def part2():
     path = list(astar.find_path((0, 0), (width*5 - 1, height*5 - 1), neighbors_fnct=neighborsPart2,
@@ -64,12 +64,28 @@ def part2():
 
     totalCost = sum([distancePart2((0,0),n2)  for n2 in path[1:]])
     print(totalCost)
-
     return
+
+def drawGrid(surface,grid):
+    for y,row in enumerate(grid):
+        for x,val in enumerate(row):
+            rect = (x*6,y*6,5,5)
+            surface.fill((val*25,val*25,val*25),rect)
+
+def drawPath(surface,path):
+    for p in path:
+        x = p[0]
+        y = p[1]
+        rect = (x*6,y*6,5,5)
+        val = grid[y][x]
+        surface.fill((val*25,0,0),rect)
+
+pygame.init()
+surface = pygame.display.set_mode((600,600))
 
 print("----- Part1 ----")
 startp1 = time.time()
-part1()
+displayPath  = part1()
 endp1 = time.time()
 print("{:.4f}s".format(endp1 - startp1))
 
@@ -78,3 +94,13 @@ startp2 = time.time()
 part2()
 endp2 = time.time()
 print("{:.4f}s".format(endp2 - startp2))
+
+
+while True:
+    drawGrid(surface,grid)
+    drawPath(surface,displayPath)
+    pygame.display.update()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
