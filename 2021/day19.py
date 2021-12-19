@@ -1,8 +1,8 @@
 #Advent of code 2021: Day 19
 #https://adventofcode.com/2021/day/19
-import re, time, copy, math, sys, ast
+import re, time, copy, math
 import numpy as np
-from itertools import permutations 
+from itertools import combinations 
 
 
 f = open('input_day19.txt', 'r')
@@ -23,72 +23,56 @@ for line in lines[1:]:
 scanners.append(copy.copy(currentScanner))
 
 
-print(scanners)
-
-
 # from https://newbedev.com/how-to-calculate-all-24-rotations-of-3d-array
-A = [[[1, 0, 0],[0, 1, 0],[0, 0, 1]], [[0, 1, 0],[0, 0, 1],[1, 0, 0]], [[0, 0, 1],[1, 0, 0],[0, 1, 0]]]
-B = [[[ 1, 0, 0],[ 0, 1, 0],[ 0, 0, 1]],[[-1, 0, 0],[ 0,-1, 0],[ 0, 0, 1]],[[-1, 0, 0],[ 0, 1, 0],[ 0, 0,-1]],[[ 1, 0, 0], [ 0,-1, 0], [ 0, 0,-1]]]
-C = [[[ 1, 0, 0],[ 0, 1, 0],[ 0, 0, 1]],[[ 0, 0,-1],[ 0,-1, 0],[-1, 0, 0]]]
-rotMatrices = []
-for a in A:
-    for b in B:
-        for c in C:
-            m = np.matrix(a)*np.matrix(b)*np.matrix(c)
-            rotMatrices.append(m)
-print(len(rotMatrices))
-
-
-def matchScanners(scan1,scan2): 
-    scan1set = set([tuple(p.tolist()) for p in scan1])
-    for i,mat in enumerate(rotMatrices):
-        rotated = [np.asarray(np.dot(mat,p))[0]  for p in scan2]
-        nbMatching = 0
-        # for all probe in scanner 1
-        for j,p1 in enumerate(scan1):
-            for k,p2 in enumerate(rotated):
-                delta = p2 - p1
-                translated = [(p - delta) for p in rotated] 
-                scan2set = set([tuple(p.tolist()) for p in translated])
-                common = scan1set.intersection(scan2set)
-                if len(common)>=12:
-                    # returns position of scanner and list of positions
-                    return (-delta,translated)
-    return None
-
-scannerPositions = {}
-scannerPositions[0] = np.asarray([0,0,0])
-doneCombo = {}
-doneCombo[(0,0)] = True
-
-def part1():
-    while len(scannerPositions) != len(scanners):
-        for i in range(len(scanners)):            
-            if i in scannerPositions:
-                for j in range(len(scanners)):            
-                    if not j in scannerPositions and not (i,j) in doneCombo:
-                        doneCombo[(i,j)] = True
-                        res = matchScanners(scanners[i],scanners[j])
-                        if res != None:
-                            # update scanner to ref 0
-                            scanners[j] = res[1]
-                            scannerPositions[j] = res[0]
-                            print("Match",i,j,res[0])
-    
-    beaconSet = set([tuple(p.tolist()) for p in scanners[0]])
-    for scan in scanners[1:]:
-        beaconSet = beaconSet.union(set([tuple(p.tolist()) for p in scan]))
-    print(len(beaconSet))    
-    return
+# all 24 possible rotation matrices
+def matrices():
+    for a in [[[1, 0, 0],[0, 1, 0],[0, 0, 1]], [[0, 1, 0],[0, 0, 1],[1, 0, 0]], [[0, 0, 1],[1, 0, 0],[0, 1, 0]]]:
+        for b in [[[ 1, 0, 0],[ 0, 1, 0],[ 0, 0, 1]],[[-1, 0, 0],[ 0,-1, 0],[ 0, 0, 1]],[[-1, 0, 0],[ 0, 1, 0],[ 0, 0,-1]],[[ 1, 0, 0], [ 0,-1, 0], [ 0, 0,-1]]]:
+            for c in [[[ 1, 0, 0],[ 0, 1, 0],[ 0, 0, 1]],[[ 0, 0,-1],[ 0,-1, 0],[-1, 0, 0]]]:
+                yield np.matrix(a)*np.matrix(b)*np.matrix(c)
+# all 24 possible list of positions for each scanner
+scannersOriented = [[[tuple((np.asarray(np.dot(mat,p))[0]).tolist())  for p in scan] for mat in matrices()] for scan in scanners]
 
 def manhattan(v1):
     return abs(v1[0])+abs(v1[1])+abs(v1[2])
 
+def sub(p2,p1):
+    return (p2[0] - p1[0],p2[1] - p1[1],p2[2] - p1[2])
+
+def matchScanners(ref,scan2): 
+    for rotated in scan2:
+        for k,p2 in enumerate(rotated):
+            for j,p1 in enumerate(ref):
+                delta = sub(p2,p1)
+                scan2set = set([sub(p,delta) for p in rotated])
+                common = ref.intersection(scan2set)
+                if len(common)>=12:
+                    # returns position of scanner and list of positions
+                    return ((-delta[0],-delta[1],-delta[2]),scan2set)
+    return None
+
+scannerPositions = {}
+scannerPositions[0] = np.asarray([0,0,0])
+scanners[0] = set([tuple(p.tolist()) for p in scanners[0]])
+
+def part1():
+    while len(scannerPositions) != len(scanners):
+        for j in range(len(scanners)):            
+            if not j in scannerPositions:
+                res = matchScanners(scanners[0],scannersOriented[j])
+                if res != None:
+                    # update scanner to ref 0
+                    scanners[0] = scanners[0].union(res[1])
+                    scannerPositions[j] = res[0]
+                    print("Match",j,res[0])        
+
+    print(len(scanners[0]))    
+    return
+
 def part2():
-    distances = [manhattan(p[0]-p[1]) for p in permutations(scannerPositions.values(),2)]
+    distances = [manhattan(sub(p[0],p[1])) for p in combinations(scannerPositions.values(),2)]
     maxDist = max(distances)
     print(maxDist)
-
     return
 
 
