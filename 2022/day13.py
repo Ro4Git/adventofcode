@@ -61,7 +61,7 @@ def part2():
             index1 = i+1
         if rep == "[[6]]":
             index2 = i+1
-    print(sortedPackets)
+    # print(sortedPackets)
     print(index1,index2)
     print(index1*index2)
     return
