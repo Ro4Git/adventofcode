@@ -71,8 +71,7 @@ def readMonkey(monkeyLines):
     #  Test: divisible by 5
     #    If true: throw to monkey 1
     #    If false: throw to monkey 0
-    items = re.findall(r"\d+",monkeyLines[1])
-    items = [int(item) for item in items] 
+    items = [int(item) for item in re.findall(r"\d+",monkeyLines[1])] 
     numOp = re.findall(r"\d+",monkeyLines[2])
     addOp = 0
     mulOp = 1
@@ -83,7 +82,7 @@ def readMonkey(monkeyLines):
         else: 
             mulOp = op
     else:
-        mulOp = None
+        mulOp = None # old * old
     testDivisible = int(re.findall(r"\d+",monkeyLines[3])[0])
     destIfTrue = int(re.findall(r"\d+",monkeyLines[4])[0])
     destIfFalse = int(re.findall(r"\d+",monkeyLines[5])[0])
@@ -92,7 +91,7 @@ def readMonkey(monkeyLines):
 
 def part1():
     Monkeys = []
-    for i in range(8):
+    for i in range(1+len(lines)//7):
         Monkeys.append(readMonkey(lines[i*7:]))
 
     for i in range(20): 
@@ -110,12 +109,13 @@ def part1():
 def part2():
     Monkeys = []
     globalModulo = 1
-    for i in range(8):
+    nbMonkeys = 1+len(lines)//7
+    for i in range(nbMonkeys):
         monkey = readMonkey(lines[i*7:])
         Monkeys.append(monkey)
         globalModulo *= monkey.divideTest
-    for i in range(8):
-        Monkeys[i].globalModulo = globalModulo
+    for monkey in Monkeys:
+        monkey.globalModulo = globalModulo
 
     for i in range(10000): 
         for monkey in Monkeys:

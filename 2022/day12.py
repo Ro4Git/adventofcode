@@ -3,7 +3,6 @@
 import re, time, copy
 import astar
 
-
 f = open('input_day12.txt', 'r')
 lines = f.readlines()
 lines = [line.rstrip("\n") for line in lines]

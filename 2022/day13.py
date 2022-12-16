@@ -8,12 +8,6 @@ lines = f.readlines()
 lines = [line.rstrip("\n") for line in lines]
 f.close()
 
-pairs=[]
-for i in range(len(lines)//3):
-    pairs.append([ast.literal_eval(lines[i*3]),ast.literal_eval(lines[i*3+1])])
-
-listPackets = [ast.literal_eval(line) for line in lines if len(line)>0]
-
 def compare(list1,list2):
     t1 = type(list1)
     t2 = type(list2)
@@ -39,17 +33,21 @@ def compare(list1,list2):
     
 
 def part1():
+    pairs=[]
+    for i in range(len(lines)//3):
+        pairs.append([ast.literal_eval(lines[i*3]),ast.literal_eval(lines[i*3+1])])
     incorrects = []
     for index,p in enumerate(pairs):
         res = compare(p[0],p[1])
         if (res>0):
             incorrects.append(index+1)
-    print(incorrects)
+    # print(incorrects)
     print(sum(incorrects))
     return
 
 
 def part2():
+    listPackets = [ast.literal_eval(line) for line in lines if len(line)>0]
     listPackets.append([[2]])
     listPackets.append([[6]])
     sortedPackets = sorted(listPackets, key=functools.cmp_to_key(compare),reverse=True)

@@ -34,7 +34,7 @@ def part2():
     for i,x in enumerate(cycles):
         pos = i % 40
         if (x-1 <= pos <= x+1):
-            crt += "#"
+            crt += "▓"
         else:
             crt += "."
         if ((i+1) % 40 == 0):
