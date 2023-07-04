@@ -48,9 +48,7 @@ class Board:
         return False
 
 def readBoard(index):
-    board = []
-    for i in range(5):
-        board.append( [ int(n) for n in lines[index+i].split()])
+    board = [[ int(n) for n in lines[index+i].split()] for i in range(5) ]
     return board
     
 numbers = [int(c) for c in lines[0].split(',')]
