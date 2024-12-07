@@ -1,7 +1,6 @@
 #Advent of code 2023: Day 21
 #https://adventofcode.com/2023/day/21
-import re, time, copy, math, numpy
-import json
+import re, time, copy, math
 
 f = open('input_day21.txt', 'r')
 lines = f.readlines()

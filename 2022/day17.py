@@ -2,7 +2,6 @@
 #https://adventofcode.com/2022/day/17
 import re, time, copy, functools
 import pygame
-from interval import interval, inf, imath
 
 f = open('input_day17.txt', 'r')
 lines = f.readlines()
