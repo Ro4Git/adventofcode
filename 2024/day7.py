@@ -6,7 +6,7 @@ import aoc
 
 lines = aoc.ReadPuzzleInput("input_day7.txt")
 equationsStr = aoc.ToList(lines,": ")
-equations = [[int(a),[int(c) for c in b.split(" ")]] for a,b in equationsStr]
+equations = [[int(left),[int(c) for c in right.split(" ")]] for left,right in equationsStr]
 
 def explore(test, val, remaining):
     if (val > test):
@@ -55,3 +55,10 @@ startp2 = time.time()
 part2()
 endp2 = time.time()
 print("{:.4f}s".format(endp2 - startp2))
+
+#----- Part1 ----
+#6231007345478
+#0.0558s
+#----- Part2 ----
+#333027885676693
+#2.0947s

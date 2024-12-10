@@ -36,6 +36,22 @@ class Grid:
                     return (x,y)
         return None
 
+    def FindAll(self, value):
+        result = []
+        for y,row in enumerate(self.data):
+            for x,c in enumerate(row):
+                if (c == value):
+                    result.append((x,y))
+        return result
+
+    def FindNeighbours(self, pos, eval):
+        result = []
+        for dirs in dirs4:
+            newPos = addPos(pos,dirs)
+            if not self.IsOut(newPos) and eval(self.data[newPos[1]][newPos[0]]):
+                result.append(newPos)
+        return result
+
     def IsOut(self, pos):
         return (pos[0] < 0 or pos[0]>=self.width or pos[1] < 0 or pos[1]>=self.height)
 
