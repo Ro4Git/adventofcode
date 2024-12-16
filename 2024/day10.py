@@ -10,6 +10,8 @@ grid = aoc.ToGrid(lines, lambda x : int(x) )
 startPoints = grid.FindAll(0)
 print(len(startPoints))
 
+
+
 def findTrailHeads(startPos, part):
     explore = [startPos]
     for i in range(1,10):
@@ -18,11 +20,12 @@ def findTrailHeads(startPos, part):
             nextPath.extend(grid.FindNeighbours(pos, lambda x : (x == i) ))
                             
         if (part == 1):
-            explore = list(dict.fromkeys(nextPath))
+            explore = list(set(nextPath))
         else:
             explore = nextPath
         if len(explore) == 0:
-            break;
+            break
+    
     return len(explore)
 
 

@@ -13,6 +13,7 @@ startingDir = aoc.north
 
 visitedpart1 = {}
 
+display = aoc.Display(True, grid.width, grid.height,    4 , 1)
 
 def DoRound(obsPos = None):
     visited = {}
@@ -43,6 +44,11 @@ def DoRound(obsPos = None):
 def part1():
     global visitedpart1
     visitedpart1, visitedAndDir, loop = DoRound()
+    
+    display.drawGrid(grid, lambda x: (150,80,122) if x !='.' else (0,0,0))
+    display.drawListPos(visitedpart1.keys(),(255,255,255))
+    display.update()
+    
     print(len(visitedpart1))
     return 
 
@@ -54,6 +60,10 @@ def part2():
     for obsPos in potentialObstacles:
         visited, visitedAndDir, loop = DoRound(obsPos)
         if loop: 
+            display.clear()
+            display.drawGrid(grid, lambda x: (150,80,122) if x !='.' else (0,0,0))
+            display.drawListPos(visited.keys(),(255,255,255))
+            display.update()            
             validObsPos.append(obsPos)
     print(len(validObsPos))
 
@@ -70,3 +80,5 @@ startp2 = time.time()
 part2()
 endp2 = time.time()
 print("{:.4f}s".format(endp2 - startp2))
+
+display.wait()
