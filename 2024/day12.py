@@ -50,7 +50,7 @@ class Area:
             
 def nbIntervals( listCells, index):
     if len(listCells) ==0 :
-        return
+        return 0
     prev = listCells[0]
     otherIndex = 1 if index == 0 else 0
     nbSides = 1
@@ -97,7 +97,7 @@ for row in grid.data:
         before = len(areas)
         exploreAreaFromCell(c)
         if (len(areas) != before):
-            display.drawGrid(grid,lambda c : aoc.colorFromRange(c.area.index,500) if c.area != None else (0,0,0))
+            display.drawGrid(grid,lambda c : aoc.colorFromRange(c.area.index,100) if c.area != None else (0,0,0))
             display.update()
         
 def part1():

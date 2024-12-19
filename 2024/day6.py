@@ -9,11 +9,10 @@ grid = aoc.ToGrid(lines)
 
 startingPos = grid.Find('^')
 startingDir = aoc.north
-
-
 visitedpart1 = {}
+enableVisu = False
 
-display = aoc.Display(True, grid.width, grid.height,    4 , 1)
+display = aoc.Display(enableVisu, grid.width, grid.height,    4 , 1)
 
 def DoRound(obsPos = None):
     visited = {}

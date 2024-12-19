@@ -13,8 +13,6 @@ for y,row in enumerate(grid.data):
         if c != '.':
             antennas[c].append((x,y))
 
-print(antennas)
-
 antinodes = defaultdict(int)
 
 def addNode(pos): 
@@ -47,10 +45,6 @@ def findAntinodes2(positions):
             addNode(antinode2)    
             antinode2 = aoc.addPos(antinode2,delta)        
         
-    
-
-
-
 def part1():
     for antenna,positions in antennas.items():
         findAntinodes(positions)

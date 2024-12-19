@@ -4,12 +4,9 @@ import re, time, copy
 import aoc
 
 lines = aoc.ReadPuzzleInput("input_day4.txt")
-
-
 grid = aoc.ToGrid(lines)
 
 key = ["X","M","A","S"]
-
 
 def hasXMas(startPos): 
     nbValid = 0

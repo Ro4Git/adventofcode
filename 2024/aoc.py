@@ -29,12 +29,10 @@ def ToList(lines, sep, eval = lambda x: x):
 
 class Grid:
     def __init__(self, data, width, height):
-        self.data = data
-        self.width = width
-        self.height = height 
-
-    def __init__(self, data, width, height):
-        self.data = data
+        if data != None:
+            self.data = data
+        else:
+            self.data = [[ "." for i in range(width)] for j in range(height)]
         self.width = width
         self.height = height         
     
@@ -101,13 +99,14 @@ def ToGridPos(lines, eval = lambda v,x,y: v):
     height = len(grid)
     return Grid(grid,width,height)
 
-
-
 # directions in grid
 north = 3
-west = 0
+west = 2
 south = 1
-east = 2
+east = 0
+dirsArrow = {'>':0,'v':1,'<':2,'^':3}
+dirsCard = {'E':0,'S':1,'W':2,'N':3}
+
 #  0: > , 1: v , 2: < , 3: ^
 dirs4 = [(1,0),(0,1),(-1,0),(0,-1)]
 invdirs4 = {(1,0):0,(0,1):1,(-1,0):2,(0,-1):3}
@@ -115,6 +114,9 @@ invdirs4 = {(1,0):0,(0,1):1,(-1,0):2,(0,-1):3}
 dirs8 = [(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1),(0,-1),(1,-1)]
 turn90right = [1,2,3,0]
 turn90left = [3,0,1,2]
+
+def manDist(pos1,pos2):
+    return sum([abs(coord1-coord2) for coord1,coord2 in zip(pos1,pos2)])
 
 def minPos(pos1,pos2):
     return tuple([min(coord1,coord2) for coord1,coord2 in zip(pos1,pos2)])
@@ -148,6 +150,28 @@ def colorFromRange(val, maxVal):
     c.hsva = ((val * 360 / maxVal)%360 , 100,100,100)
     return c
 
+class OrientedSprite:
+    def __init__(self,basefilename, nbFrames = 1, offset = 0):
+        self.imgs = {}
+        for letterDir, dir in dirsCard.items():
+            image = pygame.image.load("images/" + basefilename + letterDir + ".png").convert_alpha()
+            self.imgs[dir] = image
+            self.sizeX = image.get_width() // nbFrames
+            self.sizeY = image.get_height()
+        self.offset = offset
+        self.pos = (0,0)
+        self.dir = 0
+        self.currentFrame = 0
+        self.nbFrames = nbFrames
+    def setDir(self, dir):
+        self.dir = dir  
+    def step(self):
+        self.currentFrame += 1
+        self.currentFrame = self.currentFrame % self.nbFrames
+    def imageRect(self):
+        return self.imgs[self.dir] , (self.currentFrame * self.sizeX,0,self.sizeX,self.sizeY)
+            
+
 class Display:
     def __init__(self , enabled , width, height , cellSize, border , isoTile = 0 ):
         self.enabled = enabled
@@ -161,26 +185,22 @@ class Display:
         if enabled:
             pygame.init()
             elemSize = cellSize + border 
-            screenSize = ((width+1)*elemSize,(height+1)*elemSize)
+            self.screenSize = ((width+1)*elemSize,(height+1)*elemSize)
             if isoTile != 0:
-                screenSize = ((width+height+1)*isoTile//2,(width+height+1)*isoTile//4)
-            self.surface = pygame.display.set_mode(screenSize)              
-            self.imgbox = pygame.image.load("tile32_box2.png").convert_alpha()
-            self.imgwall = pygame.image.load("tile32_wall.png").convert_alpha()
-            self.imgfloor = pygame.image.load("tile32_floor.png").convert_alpha()
-            self.imgleft = pygame.image.load("tile32_west.png").convert_alpha()
-            self.imgright = pygame.image.load("tile32_east.png").convert_alpha()
-            self.imgup = pygame.image.load("tile32_south.png").convert_alpha()
-            self.imgdown = pygame.image.load("tile32_north.png").convert_alpha()
+                self.screenSize = ((width+height+1)*isoTile//2,(width+height+1)*isoTile//4+30)
+            self.surface = pygame.display.set_mode(self.screenSize)              
+            self.imgbox = pygame.image.load("images/tile32_box1.png").convert_alpha()
+            self.imgwall = pygame.image.load("images/tile32_halfwall.png").convert_alpha()
+            self.imgfloor = pygame.image.load("images/tile32_floor.png").convert_alpha()
+            self.imgstart = pygame.image.load("images/tile32_start.png").convert_alpha()
+            self.imgend = pygame.image.load("images/tile32_end.png").convert_alpha()
             self.imgs = {'#':self.imgwall,
                          ".":self.imgfloor,
                          'O':self.imgbox,
                          '[':self.imgbox,
                          ']':self.imgbox,
-                         "<":self.imgright,
-                         '>':self.imgleft,
-                         '^':self.imgup,
-                         'v':self.imgdown
+                         'S':self.imgstart,
+                         'E':self.imgend,
                          }
 
         else:
@@ -198,28 +218,35 @@ class Display:
                     rect = (self.border + x*elemSize , self.border + y * elemSize,self.cellSize,self.cellSize)
                     self.surface.fill(eval(val),rect)  
                     
-    def drawGridTiles(self, grid , eval = lambda x : x):
+    def drawGridTiles(self, grid , eval = lambda x : x , sprites = None):
         if self.enabled and self.surface != None:
             halfTile = self.isoTileSize // 2
             quarterTile = self.isoTileSize // 4
             mid = (self.width+self.height+1) * quarterTile // 2
             for y,row in enumerate(grid.data):
-                for x,val in reversed(list(enumerate(row))):
+                for x,val in enumerate(row):
+                    if val == '.':
+                        pos = (x * halfTile + y * halfTile , -x * quarterTile + y * quarterTile + mid)
+                        self.surface.blit(self.imgs[eval(val)],pos)  
+            
+            for x in reversed(range(grid.width)):
+                for y in range(grid.height):
+                    val = grid.Val((x,y))
                     pos = (x * halfTile + y * halfTile , -x * quarterTile + y * quarterTile + mid)
-                    self.surface.blit(self.imgs[eval(val)],pos)  
-                    
-    def drawListPosTiles(self, listPos , key , eval = None):
-        if self.enabled and self.surface != None:
-            halfTile = self.isoTileSize // 2
-            quarterTile = self.isoTileSize // 4
-            mid = (self.width+self.height+1) * quarterTile // 2
-            for posg in listPos:
-                pos = (posg[0] * halfTile + posg[1] * halfTile , -posg[0] * quarterTile + posg[1] * quarterTile + mid)
-                lkey = key
-                if eval != None:
-                    lkey = eval(pos)
-                self.surface.blit(self.imgs[key],pos)        
-       
+                    if val != '.':
+                        self.surface.blit(self.imgs[eval(val)],pos)  
+
+                    if sprites != None and (x,y) in sprites:
+                        for spriteAtPos in sprites[(x,y)]:
+                            img, rect = spriteAtPos.imageRect()
+                            ratio = (spriteAtPos.currentFrame / spriteAtPos.nbFrames) - 1
+                            delta = sclPos(ratio,dirs4[spriteAtPos.dir])
+                            npos = addPos(spriteAtPos.pos, delta)
+                            
+                            pos = (npos[0] * halfTile + npos[1] * halfTile , -npos[0] * quarterTile + npos[1] * quarterTile + mid)
+                            self.surface.blit(img,(pos[0], pos[1] + spriteAtPos.offset),rect)  
+                            
+
     def drawListPos(self, listPos , col , eval = None):
         if self.enabled and self.surface != None:
             elemSize = self.cellSize + self.border
@@ -258,14 +285,18 @@ class Display:
                     if event.type == pygame.KEYDOWN:
                         return
 
-    def capture(self):
-        rgb = pygame.surfarray.array3d(self.surface)
-        rgb = np.moveaxis(rgb, 0, 1)
-        frameImage = Image.fromarray(np.uint8(rgb))
-        self.frames.append(frameImage)                    
+    def capture(self, ratio = 1):
+        if (self.enabled):
+            rgb = pygame.surfarray.array3d(self.surface)
+            rgb = np.moveaxis(rgb, 0, 1)
+            frameImage = Image.fromarray(np.uint8(rgb))
+            if ratio > 1:
+                frameImage = frameImage.resize((self.screenSize[0]//ratio, self.screenSize[1]//ratio), Image.Resampling.LANCZOS)
+            self.frames.append(frameImage)                    
                         
     def saveGif(self , filename):
-        self.frames[0].save(
-            filename, save_all=True, optimize=False,
-            append_images=self.frames[1:],
-            loop=0, duration=int(1000 / 60))                    
+        if (self.enabled):
+            self.frames[0].save(
+                filename, save_all=True, optimize=False,
+                append_images=self.frames[1:],
+                loop=0, duration=int(1000 / 60))                    

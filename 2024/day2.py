@@ -6,7 +6,6 @@ import aoc
 lines = aoc.ReadPuzzleInput("input_day2.txt")
 
 nums = [[int(num) for num in line.split(" ")] for line in lines]
-print (nums)
 
 def safeList(report): 
     prev = report[0]

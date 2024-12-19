@@ -11,7 +11,6 @@ startPoints = grid.FindAll(0)
 print(len(startPoints))
 
 
-
 def findTrailHeads(startPos, part):
     explore = [startPos]
     for i in range(1,10):

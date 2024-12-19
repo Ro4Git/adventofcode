@@ -18,8 +18,6 @@ def part1():
 def part2():
     occurences = [numsR.count(l)*l for l in numsL]
     print (sum(occurences))
-
-
     return
 
 print("----- Part1 ----")

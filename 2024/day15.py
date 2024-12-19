@@ -30,7 +30,8 @@ print(grid.width,grid.height)
 print(grid2.width,grid2.height)
 print(len(movements))
 
-display = aoc.Display(True, grid.width*2, grid.height,    6 , 1 , 32)
+display = aoc.Display(True, grid.width, grid.height,    6 , 1 , 32)
+arrows = aoc.OrientedSprite("Tile32_arrow")
 
 def moveRobot(startPos, dir): 
     delta = aoc.dirs4[dirs[dir]]
@@ -61,10 +62,9 @@ def moveRobot(startPos, dir):
         return nextPos
 
 
-def drawStuff(grid,currentPos,mov):
+def drawStuff(grid, pos):
     display.clear()
-    display.drawGridTiles(grid)
-    display.drawListPosTiles([currentPos],mov)
+    display.drawGridTiles(grid, lambda x : x,   {pos:[arrows]})
     display.update()   
     display.capture()   
     
@@ -79,10 +79,15 @@ def gpsCoordsVal(grid , obstacle):
 def part1():
     currentPos = startPos
     for i,mov in enumerate(movements):
+    #for i in range(100):
+    #    mov = movements[i]
         currentPos = moveRobot(currentPos,mov) 
-        if i % 100 == 0:
-            drawStuff(grid,currentPos, mov)
-    display.saveGif("day15_p1.gif")
+        arrows.setDir(aoc.dirsArrow[mov])
+        drawStuff(grid,currentPos)
+        
+    #if i % 100 == 0:
+    #display.saveGif("day15_p1.gif")
+    
     gpsCoordsVal(grid,"O")
     return 
 
@@ -149,10 +154,7 @@ def part2():
     currentPos = startPos2
     for i,mov in enumerate(movements):
         currentPos = moveRobot2(currentPos,mov) 
-        if i % 100 == 0:
-            drawStuff(grid2,currentPos,mov)
-    
-    display.saveGif("day15_p2.gif")
+        
     gpsCoordsVal(grid2,"[")
     return 
 
