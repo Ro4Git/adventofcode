@@ -4,3 +4,7 @@
 workspace.code-workspace
 *.pyc
 pypy3.10/
+utils/2024dailyinput.py
+utils/2024stats.py
+utils/aoc_2024_stats.html
+utils/leaderboard_2024.json
