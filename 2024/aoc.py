@@ -11,6 +11,14 @@ def ReadPuzzleInput(filename):
     f.close()
     return lines
 
+def pairwise(iterable):
+    # pairwise('ABCDEFG') → AB BC CD DE EF FG
+    iterator = iter(iterable)
+    a = next(iterator, None)
+    for b in iterator:
+        yield a, b
+        a = b
+        
 def ToSections(lines): 
     sections = []
     section = []
@@ -42,6 +50,16 @@ class Grid:
                 if (c == value):
                     return (x,y)
         return None
+   
+    def Has(self, criteria):
+        for y,row in enumerate(self.data):
+            for x,c in enumerate(row):
+                if criteria(c):
+                    return True
+        return False
+    
+    def Add(self, grid):
+        return Grid([[a+b for a,b in zip(row1,row2)] for row1,row2 in zip(self.data,grid.data)],self.width,self.height)
 
     def FindAll(self, value):
         result = []
@@ -57,6 +75,18 @@ class Grid:
             newPos = addPos(pos,dirs)
             if not self.IsOut(newPos) and eval(self.data[newPos[1]][newPos[0]]):
                 result.append(newPos)
+        return result
+    
+    def FindValidInRange(self, pos, size, eval):
+        result = []
+        minx = max(pos[0]-size,0)
+        maxx = min(pos[0]+size+1,self.width)
+        miny = max(pos[1]-size,0)
+        maxy = min(pos[1]+size+1,self.height)
+        for x in range(minx,maxx):
+            for y in range(miny,maxy):
+                if eval((x,y),self.data[y][x]):
+                    result.append((x,y))
         return result
 
     def IsOut(self, pos):
@@ -85,6 +115,7 @@ class Grid:
         if self.IsOut(nPos):
             return None
         return self.Val(nPos)
+    
 
 
 def ToGrid(lines, eval = lambda x: x):
@@ -106,6 +137,7 @@ south = 1
 east = 0
 dirsArrow = {'>':0,'v':1,'<':2,'^':3}
 dirsCard = {'E':0,'S':1,'W':2,'N':3}
+arrowDirs = { (1,0):">",(0,1):"v",(-1,0):"<",(0,-1):"^"}
 
 #  0: > , 1: v , 2: < , 3: ^
 dirs4 = [(1,0),(0,1),(-1,0),(0,-1)]
@@ -149,6 +181,20 @@ def colorFromRange(val, maxVal):
     c = pygame.Color(0,0,0)
     c.hsva = ((val * 360 / maxVal)%360 , 100,100,100)
     return c
+
+class Sprite:
+    def __init__(self,basefilename, nbFrames = 1, offset = 0):
+        self.image = pygame.image.load("images/" + basefilename + ".png").convert_alpha()
+        self.sizeX = self.image.get_width() // nbFrames
+        self.sizeY = self.image.get_height()
+        self.offset = offset
+        self.currentFrame = 0
+        self.nbFrames = nbFrames
+    def step(self):
+        self.currentFrame += 1
+        self.currentFrame = self.currentFrame % self.nbFrames
+    def imageRect(self):
+        return self.image , (self.currentFrame * self.sizeX,0,self.sizeX,self.sizeY)
 
 class OrientedSprite:
     def __init__(self,basefilename, nbFrames = 1, offset = 0):
